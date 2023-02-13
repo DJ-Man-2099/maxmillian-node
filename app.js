@@ -43,7 +43,8 @@ module.exports = app;
 const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
-const expresshbs = require("express-handlebars");
+//const expresshbs = require("express-handlebars");
+const pageNotFound = require("./controllers/404");
 
 const app = express();
 
@@ -60,21 +61,19 @@ app.set("view engine", "ejs");
 //look for views in views folder
 app.set("views", "views");
 
-const adminData = require("./routes/admin");
+const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 
 app.use(bodyParser.urlencoded({ extended: false })); //parses body from requests
 app.use(express.static(path.join(__dirname, "public"))); //allows access to public folder for users
 
 //order doesn't matter bec we don't use "router.use()"
-app.use("/admin", adminData.routes);
+app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 //this also works
 //app.use(shopRoutes);
 //app.use('/admin', adminRoutes);
 
-app.use((req, res, next) => {
-  res.status(404).render("404", { pageTitle: "Page Not Found" });
-});
+app.use(pageNotFound);
 
 app.listen(3000);
