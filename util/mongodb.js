@@ -1,23 +1,17 @@
-const mongodb = require("mongodb");
-
-const client = mongodb.MongoClient;
+const mongoose = require("mongoose");
 
 const SERVER_URL = "mongodb://127.0.0.1:27017/";
 const DATABASE_NAME = "maxmillian-node";
 
-let _db;
-
 const mongoConnect = (callback) => {
-  client
+  mongoose
     .connect(SERVER_URL + DATABASE_NAME)
     .then((result) => {
       console.log("connected");
-      _db = result.db();
       callback();
     })
     .catch((err) => {
       console.log("err", err);
-      throw err;
     });
 };
 

@@ -80,8 +80,6 @@ exports.getProducts = (req, res, next) => {
 }; */
 
 exports.getProduct = (req, res, next) => {
-  //res.sendFile(path.join(rootDir, "views", "shop.html"));
-  //for dynamic template
   const prodID = req.params.ID;
   Product.findByID(prodID).then((product) => {
     res.render("shop/product-detail", {
