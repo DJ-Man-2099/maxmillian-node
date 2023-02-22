@@ -85,24 +85,32 @@ class User {
     const cartProductIndex = this.cart.items.findIndex((cartProduct) => {
       return product._id.equals(cartProduct.productID);
     });
-    let updatedItems;
-    updatedItems = [...this.cart.items];
-    const deletedItem = updatedItems.splice(cartProductIndex, 1);
-    console.log(deletedItem);
-    const totalPrice =
-      updatedItems.length > 0
-        ? +this.cart.totalPrice - +product.price * deletedItem[0].qty
-        : 0;
-    const updatedCart = {
-      totalPrice: totalPrice,
-      items: updatedItems,
-    };
-    return getUsersCollection()
-      .updateOne({ _id: this._id }, { $set: { cart: updatedCart } })
-      .then((result) => {
-        console.log("isUpdated:", result);
-        return result;
-      });
+    if (cartProductIndex >= 0) {
+      let updatedItems;
+      updatedItems = [...this.cart.items];
+      const deletedItem = updatedItems.splice(cartProductIndex, 1);
+      const totalPrice =
+        updatedItems.length > 0
+          ? +this.cart.totalPrice - +product.price * deletedItem[0].qty
+          : 0;
+      const updatedCart = {
+        totalPrice: totalPrice,
+        items: updatedItems,
+      };
+      return getUsersCollection()
+        .updateOne({ _id: this._id }, { $set: { cart: updatedCart } })
+        .then((result) => {
+          console.log("isUpdated:", result);
+          return result;
+        });
+    }
+    return (
+      new Promise() <
+      null >
+      ((resolve, reject) => {
+        resolve(null);
+      })
+    );
   }
 
   addOrder() {

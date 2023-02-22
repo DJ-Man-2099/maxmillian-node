@@ -148,11 +148,20 @@ exports.postDeleteProduct = (req, res, next) => {
   //using MongoDB
   const ID = req.body.ID;
   console.log(ID);
-  const product = new Product({ id: ID });
-  console.log(product);
-  console.log("Deleting!!!!");
-  product.delete().then(() => {
-    console.log("Deleted!!!!");
-    res.redirect("/admin/products");
-  });
+  Product.findByID(ID)
+    .then(async (productData) => {
+      console.log("Deleting!!!!");
+      const product = new Product({ ...productData });
+      await product.delete();
+      return productData;
+    })
+    .then((productData) => {
+      const user = req.user;
+      return user.removeFromCart(productData);
+    })
+    .then((result) => {
+      console.log(result);
+      console.log("Deleted!!!!");
+      res.redirect("/admin/products");
+    });
 };

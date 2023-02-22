@@ -88,7 +88,7 @@ class Product {
     price: price,
     description: description,
     imageURL: imageURL,
-    id: _id,
+    _id: _id,
   }) {
     this.title = title;
     this.user = user;
