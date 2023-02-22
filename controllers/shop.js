@@ -41,19 +41,6 @@ exports.getIndex = (req, res, next) => {
   });
 };
 
-/* exports.getProducts = (req, res, next) => {
-  //using Local file 
-  //res.sendFile(path.join(rootDir, "views", "shop.html"));
-  //for dynamic template
-  Product.fetchAll((products) => {
-    res.render("shop/products-list", {
-      prods: products,
-      pageTitle: "Products List",
-      path: "/products",
-    });
-  });
-}; */
-
 exports.getProducts = (req, res, next) => {
   //using Mongodb
   Product.fetchAll().then((products) => {
@@ -64,20 +51,6 @@ exports.getProducts = (req, res, next) => {
     });
   });
 };
-
-/* exports.getProduct = (req, res, next) => {
-  //using local File
-  //res.sendFile(path.join(rootDir, "views", "shop.html"));
-  //for dynamic template
-  const prodID = req.params.ID;
-  Product.fetchOne(prodID, (product) => {
-    res.render("shop/product-detail", {
-      prod: product,
-      pageTitle: "Product Detail",
-      path: `/products`,
-    });
-  });
-}; */
 
 exports.getProduct = (req, res, next) => {
   const prodID = req.params.ID;
@@ -91,28 +64,6 @@ exports.getProduct = (req, res, next) => {
 };
 
 const cart = require("../models/cart");
-
-/* exports.getCart = (req, res, next) => {
-  //using local file
-  cart.getCart((current) => {
-    Product.fetchAll((products) => {
-      const cartProducts = [];
-      current.products.forEach((element) => {
-        const found = products.find((product) => product.ID === element.ID);
-        if (found) {
-          cartProducts.push({ product: found, qty: element.qty });
-        }
-      });
-      console.log(cartProducts);
-      res.render("shop/cart", {
-        pageTitle: "My Cart",
-        path: "/cart",
-        products: cartProducts,
-        total: current.totalPrice,
-      });
-    });
-  });
-}; */
 
 exports.getCart = (req, res, next) => {
   //using MongoDb
@@ -145,14 +96,6 @@ exports.getCart = (req, res, next) => {
   });
 };
 
-/* exports.postCart = (req, res, next) => {
-  //using local file
-  console.log(req.body);
-  cart.addProduct(req.body.productID, req.body.price, () => {
-    res.redirect("/cart");
-  });
-}; */
-
 exports.postCart = (req, res, next) => {
   //using MongoDb
   const user = req.user;
@@ -167,13 +110,6 @@ exports.postCart = (req, res, next) => {
       console.log(result);
     });
 };
-
-/* exports.deleteCart = (req, res, next) => {
-  //using local file
-  cart.deleteProduct(req.body.productID, req.body.price, () => {
-    res.redirect("/cart");
-  });
-}; */
 
 exports.deleteCart = (req, res, next) => {
   //using MongoDb
