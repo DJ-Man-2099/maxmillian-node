@@ -44,7 +44,10 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
 //const expresshbs = require("express-handlebars");
+
 const pageNotFound = require("./controllers/404");
+const { mongoConnect } = require("./util/mongodb");
+const User = require("./models/user");
 
 const app = express();
 
@@ -67,6 +70,18 @@ const shopRoutes = require("./routes/shop");
 app.use(bodyParser.urlencoded({ extended: false })); //parses body from requests
 app.use(express.static(path.join(__dirname, "public"))); //allows access to public folder for users
 
+app.use((req, res, next) => {
+  User.findByID("63f57f9b08ffde86485ee5c2")
+    .then((user) => {
+      req.user = new User(user);
+      console.log(req.user);
+      next();
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+
 //order doesn't matter bec we don't use "router.use()"
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
@@ -76,4 +91,6 @@ app.use(shopRoutes);
 
 app.use(pageNotFound);
 
-app.listen(3000);
+mongoConnect(() => {
+  app.listen(3000);
+});
