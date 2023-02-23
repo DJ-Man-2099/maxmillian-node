@@ -8,7 +8,6 @@ exports.getCheckout = (req, res, next) => {
 exports.getOrders = (req, res, next) => {
   const user = req.user;
   user.getOrders().then((orders) => {
-    console.log("orders", orders);
     res.render("shop/orders", {
       pageTitle: "Orders",
       path: "/orders",
@@ -51,8 +50,6 @@ exports.getProduct = (req, res, next) => {
     });
   });
 };
-
-const cart = require("../models/cart");
 
 exports.getCart = (req, res, next) => {
   //using Mongoose

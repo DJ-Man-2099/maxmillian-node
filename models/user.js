@@ -64,6 +64,7 @@ userSchema.methods.getOrders = function () {
     "items.productID",
     "title -_id"
   );
+  //TODO: find a way to flatten ProductID
 };
 
 userSchema.methods.removeFromCart = function (product) {
