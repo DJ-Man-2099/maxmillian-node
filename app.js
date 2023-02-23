@@ -22,9 +22,9 @@ app.use(bodyParser.urlencoded({ extended: false })); //parses body from requests
 app.use(express.static(path.join(__dirname, "public"))); //allows access to public folder for users
 
 app.use((req, res, next) => {
-  User.findByID("63f57f9b08ffde86485ee5c2")
+  User.findById("63f6691ac630b6c6313f1aae")
     .then((user) => {
-      req.user = new User(user);
+      req.user = user;
       console.log(req.user);
       next();
     })
@@ -39,5 +39,18 @@ app.use(shopRoutes);
 app.use(pageNotFound);
 
 mongoConnect(() => {
+  User.findOne().then((user) => {
+    if (!user) {
+      const user = new User({
+        name: "David",
+        email: "dj@hotmail.com",
+        cart: {
+          items: [],
+          totalPrice: 0,
+        },
+      });
+      user.save();
+    }
+  });
   app.listen(3000);
 });
