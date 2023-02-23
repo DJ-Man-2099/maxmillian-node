@@ -30,7 +30,6 @@ exports.getAdminProducts = (req, res, next) => {
     //second arg selects the required field
     .populate("user", "name email -_id")
     .then((products) => {
-      console.log(products);
       res.render("admin/admin-products-list", {
         prods: products,
         pageTitle: "Admin Products List",
@@ -83,20 +82,17 @@ exports.postEditProduct = (req, res, next) => {
 exports.postDeleteProduct = (req, res, next) => {
   //using Mongoose
   const ID = req.body.ID;
-  console.log(ID);
   Product.findByIdAndRemove(ID)
-    /* .then(async (productData) => {
+    .then(async (product) => {
       console.log("Deleting!!!!");
-      const product = new Product({ ...productData });
       await product.delete();
-      return productData;
+      return product;
     })
-    .then((productData) => {
+    .then((product) => {
       const user = req.user;
-      return user.removeFromCart(productData);
-    }) */
+      return user.removeFromCart(product);
+    })
     .then((result) => {
-      console.log(result);
       console.log("Deleted!!!!");
       res.redirect("/admin/products");
     });
