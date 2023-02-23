@@ -39,8 +39,19 @@ const userSchema = new Schema({
 });
 
 userSchema.methods.getCart = function () {
-  return this.cart.populate("items.productID", "title price").then((result) => {
-    return result;
+  return this.cart.populate("items.productID", "title price").then((cart) => {
+    const updatedItems = [...cart.items].map((item) => {
+      const productData = { ...item.productID._doc };
+      return {
+        qty: item.qty,
+        ...productData,
+      };
+    });
+    return {
+      _id: cart._id,
+      totalPrice: cart.totalPrice,
+      items: updatedItems,
+    };
   });
 };
 
@@ -60,11 +71,25 @@ userSchema.methods.addOrder = function () {
 };
 
 userSchema.methods.getOrders = function () {
-  return Order.find({ userID: this._id }).populate(
-    "items.productID",
-    "title -_id"
-  );
-  //TODO: find a way to flatten ProductID
+  return Order.find({ userID: this._id })
+    .populate("items.productID", "title -_id")
+    .then((orders) => {
+      const updatedOrders = [...orders];
+      return updatedOrders.map((order) => {
+        const updatedItems = [...order.items].map((item) => {
+          const fullItem = item.productID._doc;
+          return {
+            qty: item.qty,
+            ...fullItem,
+          };
+        });
+        return {
+          _id: order._id,
+          items: updatedItems,
+          totalPrice: order.totalPrice,
+        };
+      });
+    });
 };
 
 userSchema.methods.removeFromCart = function (product) {
