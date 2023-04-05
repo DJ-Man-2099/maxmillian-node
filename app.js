@@ -6,6 +6,7 @@ const pageNotFound = require("./controllers/404");
 const { mongoConnect } = require("./util/mongodb");
 
 const User = require("./models/user");
+const { session } = require("./util/mongodb");
 
 const app = express();
 
@@ -17,24 +18,34 @@ app.set("views", "views");
 
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
+const AuthRoutes = require("./routes/auth");
 
 app.use(bodyParser.urlencoded({ extended: false })); //parses body from requests
 app.use(express.static(path.join(__dirname, "public"))); //allows access to public folder for users
+app.use(session); //allows access to sessions for safely using cookies
 
 app.use((req, res, next) => {
-  User.findById("63f6691ac630b6c6313f1aae")
-    .then((user) => {
-      req.user = user;
-      console.log(req.user);
-      next();
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  if (req.session.user) {
+    req.user = User(req.session.user).toObject();
+    console.log(req.user);
+
+    User.findById(req.session.user._id)
+      .then((user) => {
+        req.user = user;
+        console.log(req.user);
+        next();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  } else {
+    next();
+  }
 });
 
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
+app.use(AuthRoutes);
 
 app.use(pageNotFound);
 
@@ -52,5 +63,5 @@ mongoConnect(() => {
       user.save();
     }
   });
-  app.listen(5000);
+  app.listen(3000);
 });

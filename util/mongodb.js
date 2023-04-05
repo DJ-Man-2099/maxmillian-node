@@ -1,11 +1,13 @@
 const mongoose = require("mongoose");
+const session = require("express-session");
+const MongoDbStore = require("connect-mongodb-session")(session);
 
 const SERVER_URL = "mongodb://127.0.0.1:27017/";
 const DATABASE_NAME = "maxmillian-node";
 
 const mongoConnect = (callback) => {
   mongoose
-    .connect(SERVER_URL + DATABASE_NAME)
+    .connect(`${SERVER_URL}${DATABASE_NAME}`)
     .then((result) => {
       console.log("connected");
       callback();
@@ -15,6 +17,10 @@ const mongoConnect = (callback) => {
     });
 };
 
+const store = new MongoDbStore({
+  uri: `${SERVER_URL}${DATABASE_NAME}`,
+  collection: "sessions",
+});
 const getDB = () => {
   if (_db) {
     return _db;
@@ -42,3 +48,9 @@ exports.getDB = getDB;
 exports.getProductsCollection = getProductsCollection;
 exports.getUsersCollection = getUsersCollection;
 exports.getOrdersCollection = getOrdersCollection;
+exports.session = session({
+  secret: "Dj-Man Rules 2099 and every other period",
+  resave: false,
+  saveUninitialized: false,
+  store: store,
+});
