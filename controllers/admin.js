@@ -1,102 +1,101 @@
-exports.getAddProduct = (req, res, next) => {
-  res.render("admin/upsert-product", {
-    pageTitle: "Add Product",
-    path: "/admin/add-product",
-    product: null,
-    isAuth: req.session.isLoggedIn,
-  });
-};
-
 const Product = require("../models/product");
 
-exports.getEditProduct = (req, res, next) => {
-  //using Mongoose
-  const editMode = req.query.edit;
-  if (!editMode) {
-    return res.redirect("/");
-  }
-  Product.findById(req.params.ID).then((product) => {
-    res.render("admin/upsert-product", {
-      pageTitle: "Edit Product",
-      path: "/admin/edit-product",
-      product: product,
-      isAuth: req.session.isLoggedIn,
-    });
+exports.getAddProduct = (req, res, next) => {
+  res.render("admin/edit-product", {
+    pageTitle: "Add Product",
+    path: "/admin/add-product",
+    editing: false,
   });
-};
-
-exports.getAdminProducts = (req, res, next) => {
-  //using Mongoose
-  Product.find()
-    //fills ref with data from other relations
-    //second arg selects the required field
-    .populate("user", "name email -_id")
-    .then((products) => {
-      res.render("admin/admin-products-list", {
-        prods: products,
-        pageTitle: "Admin Products List",
-        path: "/admin/products",
-        isAuth: req.session.isLoggedIn,
-      });
-    });
 };
 
 exports.postAddProduct = (req, res, next) => {
-  //Using Mongoose
   const title = req.body.title;
   const imageURL = req.body.imageURL;
-  const description = req.body.description;
   const price = req.body.price;
-  const user = req.user;
+  const description = req.body.description;
   const product = new Product({
     title: title,
     price: price,
     description: description,
     imageURL: imageURL,
-    user: user,
+    userId: req.user,
   });
-  product.save().then(() => {
-    res.redirect("/admin/products");
-  });
+  product
+    .save()
+    .then((result) => {
+      // console.log(result);
+      console.log("Created Product");
+      res.redirect("/admin/products");
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
+
+exports.getEditProduct = (req, res, next) => {
+  const editMode = req.query.edit;
+  if (!editMode) {
+    return res.redirect("/");
+  }
+  const prodId = req.params.productId;
+  Product.findById(prodId)
+    .then((product) => {
+      if (!product) {
+        return res.redirect("/");
+      }
+      res.render("admin/edit-product", {
+        pageTitle: "Edit Product",
+        path: "/admin/edit-product",
+        editing: editMode,
+        product: product,
+      });
+    })
+    .catch((err) => console.log(err));
 };
 
 exports.postEditProduct = (req, res, next) => {
-  //using Mongoose
-  const ID = req.body.ID;
-  const title = req.body.title;
-  const imageURL = req.body.imageURL;
-  const description = req.body.description;
-  const price = req.body.price;
-  Product.findById(ID)
+  const prodId = req.body.productId;
+  const updatedTitle = req.body.title;
+  const updatedPrice = req.body.price;
+  const updatedImageUrl = req.body.imageURL;
+  const updatedDesc = req.body.description;
+
+  Product.findById(prodId)
     .then((product) => {
-      console.log("Saving!!!!");
-      product.title = title;
-      product.imageURL = imageURL;
-      product.description = description;
-      product.price = price;
+      product.title = updatedTitle;
+      product.price = updatedPrice;
+      product.description = updatedDesc;
+      product.imageURL = updatedImageUrl;
       return product.save();
     })
-    .then(() => {
-      console.log("Saved!!!!");
+    .then((result) => {
+      console.log("UPDATED PRODUCT!");
       res.redirect("/admin/products");
-    });
+    })
+    .catch((err) => console.log(err));
+};
+
+exports.getProducts = (req, res, next) => {
+  Product.find()
+    // .select('title price -_id')
+    // .populate('userId', 'name')
+    .then((products) => {
+      console.log(products);
+      res.render("admin/products", {
+        prods: products,
+        pageTitle: "Admin Products",
+        path: "/admin/products",
+      });
+    })
+    .catch((err) => console.log(err));
 };
 
 exports.postDeleteProduct = (req, res, next) => {
-  //using Mongoose
-  const ID = req.body.ID;
-  Product.findByIdAndRemove(ID)
-    .then(async (product) => {
-      console.log("Deleting!!!!");
-      await product.delete();
-      return product;
-    })
-    .then((product) => {
-      const user = req.user;
-      return user.removeFromCart(product);
-    })
-    .then((result) => {
-      console.log("Deleted!!!!");
+  const prodId = req.body.productId;
+  Product.findByIdAndRemove(prodId)
+    .then(() => {
+      console.log("DESTROYED PRODUCT");
       res.redirect("/admin/products");
-    });
+    })
+    .catch((err) => console.log(err));
 };

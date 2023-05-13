@@ -8,6 +8,7 @@
 
             <main>
                 <form class="product-form" action="/admin/<%=!product?'add-product':'edit-product'%>" method="POST">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <% if(product) {%>
                         <input type="hidden" name="ID" id="ID" value="<%=product._id%>">
                         <%}%>

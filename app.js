@@ -1,67 +1,54 @@
-const express = require("express");
-const bodyParser = require("body-parser");
 const path = require("path");
 
-const pageNotFound = require("./controllers/404");
-const { mongoConnect } = require("./util/mongodb");
+const express = require("express");
+const bodyParser = require("body-parser");
+const { mongoConnect, session } = require("./util/mongodb");
+const csurf = require("csurf");
+const flash = require("connect-flash");
 
+const errorController = require("./controllers/error");
 const User = require("./models/user");
-const { session } = require("./util/mongodb");
 
 const app = express();
+const csrfProtection = csurf();
 
-//compile with ejs
 app.set("view engine", "ejs");
-
-//look for views in views folder
 app.set("views", "views");
 
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
-const AuthRoutes = require("./routes/auth");
+const authRoutes = require("./routes/auth");
 
-app.use(bodyParser.urlencoded({ extended: false })); //parses body from requests
-app.use(express.static(path.join(__dirname, "public"))); //allows access to public folder for users
-app.use(session); //allows access to sessions for safely using cookies
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, "public")));
+app.use(session);
+app.use(csrfProtection);
+app.use(flash());
 
 app.use((req, res, next) => {
-  if (req.session.user) {
-    req.user = User(req.session.user).toObject();
-    console.log(req.user);
-
-    User.findById(req.session.user._id)
-      .then((user) => {
-        req.user = user;
-        console.log(req.user);
-        next();
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  } else {
-    next();
+  if (!req.session.user) {
+    return next();
   }
+  User.findById(req.session.user._id)
+    .then((user) => {
+      req.user = user;
+      next();
+    })
+    .catch((err) => console.log(err));
+});
+
+app.use((req, res, next) => {
+  (res.locals.isAuthenticated = req.session.isLoggedIn),
+    (res.locals.csrfToken = req.csrfToken()),
+    next();
 });
 
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
-app.use(AuthRoutes);
+app.use(authRoutes);
 
-app.use(pageNotFound);
+app.use(errorController.get404);
 
-mongoConnect(() => {
-  User.findOne().then((user) => {
-    if (!user) {
-      const user = new User({
-        name: "David",
-        email: "dj@hotmail.com",
-        cart: {
-          items: [],
-          totalPrice: 0,
-        },
-      });
-      user.save();
-    }
-  });
+mongoConnect((result) => {
   app.listen(3000);
 });
