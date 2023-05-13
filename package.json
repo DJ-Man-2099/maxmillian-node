@@ -25,6 +25,7 @@
     "graphql": "^16.6.0",
     "http-errors": "~2.0.0",
     "jade": "^0.31.2",
+    "jquery": "^3.7.0",
     "jsonwebtoken": "^9.0.0",
     "mongodb": "^5.0.1",
     "mongoose": "^6.9.1",
