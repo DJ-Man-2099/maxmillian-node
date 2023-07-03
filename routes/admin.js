@@ -1,6 +1,7 @@
 const path = require("path");
-
 const express = require("express");
+const { check, body } = require("express-validator");
+const bcrypt = require("bcryptjs");
 
 const adminController = require("../controllers/admin");
 const isAuth = require("../util/is-auth");
@@ -14,11 +15,21 @@ router.get("/add-product", isAuth, adminController.getAddProduct);
 router.get("/products", isAuth, adminController.getProducts);
 
 // /admin/add-product => POST
-router.post("/add-product", isAuth, adminController.postAddProduct);
+router.post(
+  "/add-product",
+  isAuth,
+  [body("title").isAlphanumeric().trim(), body("price").isFloat()],
+  adminController.postAddProduct
+);
 
 router.get("/edit-product/:productId", isAuth, adminController.getEditProduct);
 
-router.post("/edit-product", isAuth, adminController.postEditProduct);
+router.post(
+  "/edit-product",
+  isAuth,
+  [body("title").isAlphanumeric().trim(), body("price").isFloat()],
+  adminController.postEditProduct
+);
 
 router.post("/delete-product", isAuth, adminController.postDeleteProduct);
 

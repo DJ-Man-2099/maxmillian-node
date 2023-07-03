@@ -7,7 +7,8 @@
         <%- include('../includes/navigation.ejs') %>
 
             <main>
-                <form class="product-form" action="/admin/<%=!product?'add-product':'edit-product'%>" method="POST">
+                <form class="product-form" action="/admin/<%=!product?'add-product':'edit-product'%>" method="POST"
+                    enctype="multipart/form-data">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <% if(product) {%>
                         <input type="hidden" name="ID" id="ID" value="<%=product._id%>">
@@ -17,10 +18,14 @@
                                 <input type="text" name="title" id="title" value="<%=!!product?product.title:''%>">
                             </div>
                             <div class="form-control">
+                                <label for="image">Image</label>
+                                <input type="file" name="image" id="image">
+                            </div>
+                            <!-- <div class="form-control">
                                 <label for="imageURL">Image URL</label>
                                 <input type="text" name="imageURL" id="imageURL"
                                     value="<%=!!product?product.imageURL:''%>">
-                            </div>
+                            </div> -->
                             <div class="form-control">
                                 <label for="price">Price</label>
                                 <input type="number" name="price" id="price" step="0.01"
