@@ -2,6 +2,8 @@ const { validationResult } = require("express-validator");
 const Product = require("../models/product");
 const fileHelper = require("../util/file");
 
+const PRODUCTS_PER_PAGE = 1;
+
 exports.getAddProduct = (req, res, next) => {
   let message = req.flash("error");
   if (message.length > 0) {
@@ -155,7 +157,21 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.find({ userId: req.user._id })
+  let message = req.flash("error");
+  if (message.length > 0) {
+    message = message[0];
+  } else {
+    message = null;
+  }
+  const page = +req.query.page;
+  let count;
+  Product.countDocuments()
+    .then((length) => {
+      count = length;
+      return Product.find({ userId: req.user._id })
+        .skip((page - 1) * PRODUCTS_PER_PAGE)
+        .limit(PRODUCTS_PER_PAGE);
+    })
     // .select('title price -_id')
     // .populate('userId', 'name')
     .then((products) => {
@@ -164,6 +180,8 @@ exports.getProducts = (req, res, next) => {
         prods: products,
         pageTitle: "Admin Products",
         path: "/admin/products",
+        currentPage: page || 1,
+        pageCount: Math.ceil(count / PRODUCTS_PER_PAGE),
       });
     })
     .catch((err) => next(err));
