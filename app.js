@@ -88,6 +88,7 @@ app.use("/500", errorController.get500);
 app.use(errorController.get404);
 //Global Erro Handler, Defined at the very end
 app.use((err, req, res, next) => {
+  log(err);
   res.redirect("/500");
 });
 

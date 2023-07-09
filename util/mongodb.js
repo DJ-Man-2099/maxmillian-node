@@ -6,6 +6,7 @@ const SERVER_URL = "mongodb://127.0.0.1:27017/";
 const DATABASE_NAME = "maxmillian-node";
 
 const mongoConnect = (callback) => {
+  mongoose.set("strictQuery", false);
   mongoose
     .connect(`${SERVER_URL}${DATABASE_NAME}`)
     .then((result) => {

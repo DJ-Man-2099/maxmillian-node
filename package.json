@@ -7,7 +7,9 @@
     "dev": "nodemon app.js"
   },
   "devDependencies": {
-    "nodemon": "^2.0.20"
+    "@types/stripe": "^8.0.417",
+    "nodemon": "^2.0.20",
+    "typescript": "^5.1.6"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

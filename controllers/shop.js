@@ -1,9 +1,15 @@
 const fs = require("fs");
 const path = require("path");
 const PDFDocument = require("pdfkit");
+const stripe = require("stripe")(
+  "sk_test_51NS1MqJJ7rtMTuJ7RS6QE9MjOrgy9uKsKADlVPXoL2hHSiv7pkTOpJPUdvOL2Hp2Iv6WLaJgiTZZ00nFsKe9v8Bd00K7h0HK7A"
+);
 
 const Product = require("../models/product");
 const Order = require("../models/order");
+const { log } = require("console");
+
+const YOUR_DOMAIN = "http://localhost:3000";
 
 const PRODUCTS_PER_PAGE = 1;
 
@@ -80,6 +86,84 @@ exports.getIndex = (req, res, next) => {
     .catch((err) => {
       next(err);
     });
+};
+
+exports.getCheckout = (req, res, next) => {
+  req.user
+    .populate("cart.items.productId")
+    .then(async (user) => {
+      const products = user.cart.items;
+      var price = 0;
+      products.forEach(
+        (product) => (price += product.quantity * product.productId.price)
+      );
+
+      return {
+        session: await stripe.checkout.sessions.create({
+          payment_method_types: ["card"],
+
+          line_items: products.map((product) => {
+            return {
+              price_data: {
+                currency: "usd",
+                unit_amount: product.productId.price * 100,
+                product_data: {
+                  name: product.productId.title,
+                  description: product.productId.description,
+                  images: ["https://example.com/t-shirt.png"],
+                },
+              },
+              quantity: product.quantity,
+            };
+          }),
+          mode: "payment",
+          success_url: `${YOUR_DOMAIN}/checkout-success`,
+          cancel_url: `${YOUR_DOMAIN}/cart`,
+        }),
+        products: products,
+        price: price,
+      };
+    })
+    .then((result) => {
+      const { session, products, price } = result;
+      res.render("shop/checkout", {
+        path: "/checkout",
+        pageTitle: "Checkout",
+        products: products,
+        totalPrice: price,
+        sessionId: session.id,
+      });
+    })
+    .catch((err) => next(err));
+};
+
+exports.postCheckout = async (req, res, next) => {
+  /* const products = [...req.body.products].map((product) => {
+    return {
+      price_data: {
+        currency: "usd",
+        product_data: {
+          name: product.productId.title,
+        },
+        unit_amount: product.productId.price,
+      },
+      quantity: product.quantity,
+    };
+  });
+  log(`Checking Out, products: ${products}`);
+  const session = stripe.checkout.sessions
+    .create({
+      line_items: products,
+      mode: "payment",
+      success_url: "http://localhost:3000/orders",
+    })
+    .then((session) => {
+      res.redirect(303, session.url);
+    }); */
+
+  res.send({
+    clientSecret: req.body.client_secret,
+  });
 };
 
 exports.getCart = (req, res, next) => {
