@@ -1,0 +1,9 @@
+{
+	"env": {
+		"PORT": 5070,
+		"SERVER": "127.0.0.1",
+		"MONGO_DB": "maxmillian-node",
+		"NODE_ENV": "production",
+		"STRIPE_KEY": "sk_test_51NS1MqJJ7rtMTuJ7RS6QE9MjOrgy9uKsKADlVPXoL2hHSiv7pkTOpJPUdvOL2Hp2Iv6WLaJgiTZZ00nFsKe9v8Bd00K7h0HK7A"
+	}
+}
