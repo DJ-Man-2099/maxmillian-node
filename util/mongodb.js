@@ -11,6 +11,10 @@ const mongoConnect = (callback) => {
 	mongoose
 		.connect(process.env.MONGO_URL, {
 			authMechanism: "SCRAM-SHA-1",
+			auth: {
+				username: USER_NAME,
+				password: PASSWORD,
+			},
 		})
 		.then((result) => {
 			console.log("connected");
@@ -26,6 +30,10 @@ const store = new MongoDbStore({
 	collection: "sessions",
 	connectionOptions: {
 		authMechanism: "SCRAM-SHA-1",
+		auth: {
+			username: USER_NAME,
+			password: PASSWORD,
+		},
 	},
 });
 const getDB = () => {
