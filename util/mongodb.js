@@ -2,13 +2,19 @@ const mongoose = require("mongoose");
 const session = require("express-session");
 const MongoDbStore = require("connect-mongodb-session")(session);
 
-const SERVER_URL = `mongodb://${process.env.SERVER}:27017/`;
-const DATABASE_NAME = `${process.env.MONGO_DB}`;
+const USER_NAME = process.env.USER_NAME;
+const PASSWORD = process.env.PASSWORD;
+const DATABASE_NAME = process.env.MONGO_DB;
 
 const mongoConnect = (callback) => {
 	mongoose.set("strictQuery", false);
 	mongoose
-		.connect(`${SERVER_URL}${DATABASE_NAME}`)
+		.connect(
+			`mongodb+srv://${USER_NAME}:${PASSWORD}@cluster0.cvms6cj.mongodb.net/${DATABASE_NAME}?retryWrites=true`,
+			{
+				authMechanism: "SCRAM-SHA-1",
+			}
+		)
 		.then((result) => {
 			console.log("connected");
 			callback();
@@ -19,8 +25,11 @@ const mongoConnect = (callback) => {
 };
 
 const store = new MongoDbStore({
-	uri: `${SERVER_URL}${DATABASE_NAME}`,
+	uri: `mongodb+srv://${USER_NAME}:${PASSWORD}@cluster0.cvms6cj.mongodb.net/${DATABASE_NAME}?retryWrites=true&w=majority`,
 	collection: "sessions",
+	connectionOptions: {
+		authMechanism: "SCRAM-SHA-1",
+	},
 });
 const getDB = () => {
 	if (_db) {
