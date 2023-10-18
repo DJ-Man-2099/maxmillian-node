@@ -18,7 +18,7 @@ exports.getProducts = (req, res, next) => {
 	} else {
 		message = null;
 	}
-	const page = +req.query.page;
+	const page = +req.query.page || 1;
 	let count;
 	Product.countDocuments()
 		.then((length) => {
@@ -61,7 +61,7 @@ exports.getIndex = (req, res, next) => {
 	} else {
 		message = null;
 	}
-	const page = +req.query.page;
+	const page = +req.query.page || 1;
 
 	let count;
 	Product.countDocuments()
