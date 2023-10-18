@@ -9,12 +9,9 @@ const DATABASE_NAME = process.env.MONGO_DB;
 const mongoConnect = (callback) => {
 	mongoose.set("strictQuery", false);
 	mongoose
-		.connect(
-			`mongodb+srv://${USER_NAME}:${PASSWORD}@cluster0.cvms6cj.mongodb.net/${DATABASE_NAME}?retryWrites=true`,
-			{
-				authMechanism: "SCRAM-SHA-1",
-			}
-		)
+		.connect(process.env.MONGO_URL, {
+			authMechanism: "SCRAM-SHA-1",
+		})
 		.then((result) => {
 			console.log("connected");
 			callback();
@@ -25,7 +22,7 @@ const mongoConnect = (callback) => {
 };
 
 const store = new MongoDbStore({
-	uri: `mongodb+srv://${USER_NAME}:${PASSWORD}@cluster0.cvms6cj.mongodb.net/${DATABASE_NAME}?retryWrites=true&w=majority`,
+	uri: process.env.MONGO_URL,
 	collection: "sessions",
 	connectionOptions: {
 		authMechanism: "SCRAM-SHA-1",
